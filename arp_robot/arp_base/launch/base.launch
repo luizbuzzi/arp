@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Load robot description -->
+    <include file="$(find arp_description)/launch/description.launch"/>
+
+    <!-- ARP harware driver -->
+    <node pkg="arp_base" type="arp_base_node" name="arp_base_node">
+      <rosparam subst_value="true">
+          control_frequency: 10.0
+
+          max_acceleration: 3.0
+          max_speed: 1.0
+          wheel_diameter: 0.3302
+          polling_timeout: 10.0
+      </rosparam>
+    </node>
+
+    <!-- Differential controller parameters and basic localization-->
+    <include file="$(find arp_control)/launch/control2.launch" />
+
+    <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop" output="screen" launch-prefix="xterm -e">
+      <remap from="cmd_vel" to="arp_velocity_controller/cmd_vel" />
+    </node>
+
+
+    <!--Teleop
+    <include file="$(find husky_control)/launch/teleop.launch" />
+    -->
+</launch>
