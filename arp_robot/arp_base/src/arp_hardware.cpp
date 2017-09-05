@@ -43,9 +43,9 @@ ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
 void ArpHardware::updateJointsFromHardware()
 {
   controller[0].teste(0);
+  controller[0].teste(1);
+  controller[1].teste(0);
   controller[1].teste(1);
-  controller[2].teste(0);
-  controller[3].teste(1);
 }
 
 void ArpHardware::writeCommandsToHardware()
