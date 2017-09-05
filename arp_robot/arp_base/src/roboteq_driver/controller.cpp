@@ -72,6 +72,11 @@ void Controller::controlerInit(const char* port, int baud)
   baud_ = baud;
 }
 
+void Controller::teste(int i)
+{
+  ROS_INFO("Veocity: %ld;",channels_[i]->getFeedBack().ticks);
+}
+
 void Controller::addChannel(Channel* channel) { channels_.push_back(channel); }
 
 void Controller::connect()
