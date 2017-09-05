@@ -42,8 +42,10 @@ ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
 
 void ArpHardware::updateJointsFromHardware()
 {
+  controller[0].spinOnce();
   controller[0].teste(0);
   controller[0].teste(1);
+  controller[1].spinOnce();
   controller[1].teste(0);
   controller[1].teste(1);
 }
