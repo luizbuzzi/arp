@@ -33,10 +33,6 @@ class Controller;
 
 class Channel {
 public:
-  Channel(int channel_num, std::string ns, Controller* controller);
-  void feedbackCallback(std::vector<std::string>);
-  //FeedBack getFeedBack(){return msg;}
-
   struct FeedBack
   {
     float motor_current;
@@ -50,6 +46,10 @@ public:
     int motor_temperature;
     int channel_temperature;
   };
+
+  Channel(int channel_num, std::string ns, Controller* controller);
+  void feedbackCallback(std::vector<std::string>);
+  FeedBack getFeedBack(){return msg;}
 
 protected:
   /**

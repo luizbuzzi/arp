@@ -109,7 +109,7 @@ public :
   Controller ();
 
   void controlerInit(const char *port, int baud);
-  //Channel *getChanels(){return channels_;}
+  std::vector<Channel*> getChanels(){return channels_;}
 
   void addChannel(Channel* channel);
   void connect();
