@@ -111,8 +111,6 @@ public :
   void controlerInit(const char *port, int baud);
   std::vector<Channel*> getChanels(){return channels_;}
 
-  void teste(int i);
-
   void addChannel(Channel* channel);
   void connect();
   bool connected() { return connected_; }
