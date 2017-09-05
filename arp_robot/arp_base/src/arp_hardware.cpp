@@ -102,6 +102,7 @@ void ArpHardware::connect(int index,const char *port,const char* position)
   if(controller[index].connected())
   {
     ROS_DEBUG("Connection successful to %s for %s wheels", port, position);
+    ROS_INFO("Connection successful to %s for %s wheels", port, position);
   }
   else
   {
