@@ -21,19 +21,23 @@ ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
   std::string port[2];
   int32_t baund[2];
 
-  for (int i = 0; i < 2; i++) {
-    private_nh_.param<std::string>("port_"+boost::lexical_cast<std::string>(i), port[i], "/dev/ttyACM"+boost::lexical_cast<std::string>(i));
-    private_nh_.param<int32_t>("baund_"+boost::lexical_cast<std::string>(i), baund[i], 115200);
+  for (int i = 0; i < 2; i++)
+  {
+    private_nh_.param<std::string>(
+        "port_" + boost::lexical_cast<std::string>(i), port[i],
+        "/dev/ttyACM" + boost::lexical_cast<std::string>(i));
+    private_nh_.param<int32_t>("baund_" + boost::lexical_cast<std::string>(i),
+                               baund[i], 115200);
     controller[i].controlerInit(port[i].c_str(), baund[i]);
-    if(i % 2)
+    if (i % 2)
     {
-      setupChannel(i,"left");
-      connect(i,port[i].c_str(),"left");
+      setupChannel(i, "left");
+      connect(i, port[i].c_str(), "left");
     }
     else
     {
-      setupChannel(i,"right");
-      connect(i,port[i].c_str(),"right");
+      setupChannel(i, "right");
+      connect(i, port[i].c_str(), "right");
     }
   }
   resetTravelOffset();
@@ -48,7 +52,8 @@ void ArpHardware::updateJointsFromHardware()
   joints_[1].position = controller[1].getChanels()[0]->getFeedBack().ticks;
   joints_[2].position = controller[0].getChanels()[1]->getFeedBack().ticks;
   joints_[3].position = controller[1].getChanels()[1]->getFeedBack().ticks;
-  ROS_INFO("0: %f; 1: %f; 2: %f; 3: %f;",joints_[0].position,joints_[1].position,joints_[2].position,joints_[3].position);
+  ROS_INFO("0: %f; 1: %f; 2: %f; 3: %f;", joints_[0].position,
+           joints_[1].position, joints_[2].position, joints_[3].position);
 }
 
 void ArpHardware::writeCommandsToHardware()
@@ -85,35 +90,48 @@ void ArpHardware::registerControlInterfaces()
 
 void ArpHardware::resetTravelOffset()
 {
-  joints_[0].position_offset = controller[0].getChanels()[0]->getFeedBack().ticks;
-  joints_[1].position_offset = controller[1].getChanels()[1]->getFeedBack().ticks;
-  joints_[2].position_offset = controller[0].getChanels()[0]->getFeedBack().ticks;
-  joints_[3].position_offset = controller[1].getChanels()[1]->getFeedBack().ticks;
+  joints_[0].position_offset =
+      controller[0].getChanels()[0]->getFeedBack().ticks;
+  joints_[1].position_offset =
+      controller[1].getChanels()[1]->getFeedBack().ticks;
+  joints_[2].position_offset =
+      controller[0].getChanels()[0]->getFeedBack().ticks;
+  joints_[3].position_offset =
+      controller[1].getChanels()[1]->getFeedBack().ticks;
 }
 
-void ArpHardware::setupChannel(int index,const char* position)
+void ArpHardware::setupChannel(int index, const char* position)
 {
-  controller[index].addChannel(
-      new roboteq::Channel(1, "front_"+boost::lexical_cast<std::string>(position)+"_wheel", &controller[index]));
-  controller[index].addChannel(
-        new roboteq::Channel(2, "back_"+boost::lexical_cast<std::string>(position)+"_wheel", &controller[index]));
+  controller[index].addChannel(new roboteq::Channel(
+      1, "front_" + boost::lexical_cast<std::string>(position) + "_wheel",
+      &controller[index]));
+  controller[index].addChannel(new roboteq::Channel(
+      2, "back_" + boost::lexical_cast<std::string>(position) + "_wheel",
+      &controller[index]));
 }
 
-void ArpHardware::connect(int index,const char *port,const char* position)
+void ArpHardware::connect(int index, const char* port, const char* position)
 {
   ROS_DEBUG("Attempting connection to %s for %s wheels", port, position);
 
-  controller[index].connect();
+  while (1)
+  {
+    controller[index].connect();
 
-  if(controller[index].connected())
-  {
-    ROS_DEBUG("Connection successful to %s for %s wheels", port, position);
-    ROS_INFO("Connection successful to %s for %s wheels", port, position);
-  }
-  else
-  {
-    ROS_DEBUG("Problem connecting to serial device.");
-    ROS_ERROR_STREAM_ONCE("Problem connecting to " << position << " controller.");
+    if (controller[index].connected())
+    {
+      ROS_DEBUG("Connection successful to %s for %s wheels", port, position);
+      ROS_INFO("Connection successful to %s for %s wheels", port, position);
+      break;
+    }
+    else
+    {
+      ROS_DEBUG("Problem connecting to serial device.");
+      ROS_ERROR_STREAM_ONCE("Problem connecting to "
+                            << position
+                            << " controller.Try again in 1 second.");
+      sleep(1);
+    }
   }
 }
 

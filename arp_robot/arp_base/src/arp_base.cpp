@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
   // Obetem os parametros postos na inicialização do nó
   double control_frequency;
 
-  private_nh.param<double>("control_frequency",control_frequency,30);
+  private_nh.param<double>("control_frequency",control_frequency,10);
 
   // Inicializa o hardware do ARP e cria um link com o controller manager
   arp_base::ArpHardware arp(nh,private_nh);
