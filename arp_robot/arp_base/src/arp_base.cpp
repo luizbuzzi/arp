@@ -22,21 +22,25 @@ void controlLoop(arp_base::ArpHardware &arp,
 
 int main(int argc, char *argv[])
 {
+  // Inicializa o nó no ros
   ros::init(argc, argv, "arp_base");
   ros::NodeHandle nh, private_nh("~");
 
+  // Obetem os parametros postos na inicialização do nó
   double control_frequency;
 
-  private_nh.param<double>("control_frequency",control_frequency,10.0);
+  private_nh.param<double>("control_frequency",control_frequency,30);
 
+  // Inicializa o hardware do ARP e cria um link com o controller manager
   arp_base::ArpHardware arp(nh,private_nh);
   controller_manager::ControllerManager cm(&arp,nh);
 
+  // Inicializa uma fila de threads separada das rotina do ros
+  // utiliza apenas uma thread para nao lidar com problemas de mutiplos acessos
   ros::CallbackQueue arp_queue;
   ros::AsyncSpinner arp_spinner(1, &arp_queue);
 
   time_source::time_point last_time = time_source::now();
-
   ros::TimerOptions control_timer(ros::Duration(1/control_frequency),
                                   boost::bind(controlLoop,boost::ref(arp),boost::ref(cm),
                                              boost::ref(last_time)),&arp_queue);
@@ -44,6 +48,7 @@ int main(int argc, char *argv[])
 
   arp_spinner.start();
 
+  // Processa as chamadas do ROS separadamente
   ros::spin();
 
   return 0;
