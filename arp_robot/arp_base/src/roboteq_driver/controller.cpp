@@ -113,10 +113,10 @@ void Controller::connect()
 
 void Controller::read()
 {
-  ROS_DEBUG_STREAM_NAMED("serial", "Bytes waiting: " << serial_->available());
-  std::vector<std::string> msg_t = serial_->readlines(max_line_length, eol);
-  std::string msg = msg_t[msg_t.size()-1];
   serial_->flushInput();
+  ROS_DEBUG_STREAM_NAMED("serial", "Bytes waiting: " << serial_->available());
+  std::string msg = serial_->readline(max_line_length, eol);
+  msg = serial_->readline(max_line_length, eol);
   if (!msg.empty())
   {
     ROS_DEBUG_STREAM_NAMED("serial", "RX: " << msg);
