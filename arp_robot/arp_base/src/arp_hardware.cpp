@@ -10,6 +10,12 @@ const uint8_t CONTROLLER_A = 0, CONTROLLER_B = 1;
 namespace arp_base
 {
 
+/**
+ * @brief ArpHardware::ArpHardware
+ * @param nh
+ * @param private_nh
+ * Inicilaliza o hardware do ARP
+ */
 ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
     : nh_(nh), private_nh_(private_nh)
 {
@@ -46,12 +52,26 @@ ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
 
 void ArpHardware::updateJointsFromHardware()
 {
-  joints_[0].position = controller[0].getChanels()[0]->getFeedBack().ticks;
-  joints_[1].position = controller[1].getChanels()[0]->getFeedBack().ticks;
-  joints_[2].position = controller[0].getChanels()[1]->getFeedBack().ticks;
-  joints_[3].position = controller[1].getChanels()[1]->getFeedBack().ticks;
+  for (int i = 0; i < NUM_CONTROLLERS * 2; i++)
+  {
+    double delta =
+        controller[i/2].getChanels()[i % 2]->getFeedBack().measured_position -
+        joints_[i].position - joints_[i].position_offset;
+
+    // detecta perda de dados do encoder
+    if (std::abs(delta) < 1.0)
+    {
+      joints_[i].position += delta;
+    }
+    else
+    {
+      joints_[i].position_offset += delta;
+      ROS_DEBUG("Dropping overflow measurement from encoder");
+    }
+    joints_[i].velocity = controller[i/2].getChanels()[i % 2]->getFeedBack().measured_velocity;
+  }
   ROS_INFO("0: %f; 1: %f; 2: %f; 3: %f;", joints_[0].position,
-           joints_[1].position, joints_[2].position, joints_[3].position);
+  joints_[1].position, joints_[2].position, joints_[3].position);
 }
 
 void ArpHardware::writeCommandsToHardware()
@@ -88,14 +108,11 @@ void ArpHardware::registerControlInterfaces()
 
 void ArpHardware::resetTravelOffset()
 {
-  joints_[0].position_offset =
-      controller[0].getChanels()[0]->getFeedBack().ticks;
-  joints_[1].position_offset =
-      controller[1].getChanels()[1]->getFeedBack().ticks;
-  joints_[2].position_offset =
-      controller[0].getChanels()[0]->getFeedBack().ticks;
-  joints_[3].position_offset =
-      controller[1].getChanels()[1]->getFeedBack().ticks;
+  for (int i = 0; i < NUM_CONTROLLERS * 2; i++)
+  {
+    joints_[i].position_offset =
+        controller[i % 2].getChanels()[i % 2]->getFeedBack().measured_position;
+  }
 }
 
 void ArpHardware::setupChannel(int index, const char* position)
