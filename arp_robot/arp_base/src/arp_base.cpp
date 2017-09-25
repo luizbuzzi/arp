@@ -22,13 +22,10 @@ void controlLoop(arp_base::ArpHardware &arp,
 
 void readController(arp_base::ArpHardware &arp, int &index)
 {
-  ros::AsyncSpinner spinner(1);
-  spinner.start();
   while(ros::ok())
   {
     arp.initReadFromHardware(index);
   }
-  spinner.stop();
 }
 
 
