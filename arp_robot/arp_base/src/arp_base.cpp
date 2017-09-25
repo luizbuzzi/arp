@@ -48,8 +48,8 @@ int main(int argc, char *argv[])
 
   //for (int i = 0; i < arp.NUM_CONTROLLERS; i++) {
     boost::thread read_controller0(boost::bind(readController,boost::ref(arp),boost::ref(i)));
-    i = 1;
-    boost::thread read_controller1(boost::bind(readController,boost::ref(arp),boost::ref(i)));
+  int f = 1;
+    boost::thread read_controller1(boost::bind(readController,boost::ref(arp),boost::ref(f)));
   //}
 
   // Inicializa uma fila de threads separada das rotina do ros
