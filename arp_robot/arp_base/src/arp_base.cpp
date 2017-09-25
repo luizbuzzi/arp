@@ -20,11 +20,12 @@ void controlLoop(arp_base::ArpHardware &arp,
   arp.writeCommandsToHardware();
 }
 
+
 int main(int argc, char *argv[])
 {
   // Inicializa o nó no ros
   ros::init(argc, argv, "arp_base");
-  ros::NodeHandle nh, private_nh("~");
+  ros::NodeHandle nh("~"), private_nh("~");
 
   // Obetem os parametros postos na inicialização do nó
   double control_frequency;
@@ -48,6 +49,7 @@ int main(int argc, char *argv[])
 
   arp_spinner.start();
 
+  arp.initReadFromHardware();
   // Processa as chamadas do ROS separadamente
   ros::spin();
 

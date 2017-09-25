@@ -20,6 +20,8 @@ public:
 
   void writeCommandsToHardware();
 
+  void initReadFromHardware();
+
 private:
   void registerControlInterfaces();
 

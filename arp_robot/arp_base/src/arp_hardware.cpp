@@ -5,6 +5,7 @@
 namespace
 {
 const uint8_t CONTROLLER_A = 0, CONTROLLER_B = 1;
+const uint8_t NUM_CONTROLLERS = 2;
 }
 
 namespace arp_base
@@ -18,10 +19,10 @@ ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
   private_nh_.param<double>("max_speed", max_speed_, 10.0);
   private_nh_.param<double>("polling_timeout_", polling_timeout_, 10.0);
 
-  std::string port[2];
-  int32_t baund[2];
+  std::string port[NUM_CONTROLLERS];
+  int32_t baund[NUM_CONTROLLERS];
 
-  for (int i = 0; i < 2; i++)
+  for (int i = 0; i < NUM_CONTROLLERS; i++)
   {
     private_nh_.param<std::string>(
         "port_" + boost::lexical_cast<std::string>(i), port[i],
@@ -46,8 +47,6 @@ ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
 
 void ArpHardware::updateJointsFromHardware()
 {
-  controller[0].spinOnce();
-  controller[1].spinOnce();
   joints_[0].position = controller[0].getChanels()[0]->getFeedBack().ticks;
   joints_[1].position = controller[1].getChanels()[0]->getFeedBack().ticks;
   joints_[2].position = controller[0].getChanels()[1]->getFeedBack().ticks;
@@ -132,6 +131,39 @@ void ArpHardware::connect(int index, const char* port, const char* position)
                             << " controller.Try again in 1 second.");
       sleep(1);
     }
+  }
+}
+
+void ArpHardware::initReadFromHardware()
+{
+  sleep(5);
+  bool allConnected = true;
+  for (int i = 0; i < NUM_CONTROLLERS; i++) {
+    if(!controller[i].connected())
+    {
+      controller[i].connect();
+      if(!controller[i].connected())
+      {
+        allConnected = false;
+      }
+    }
+  }
+  if (allConnected)
+  {
+    ros::AsyncSpinner spinner(1);
+    spinner.start();
+    while(ros::ok())
+    {
+      for (int i = 0; i < NUM_CONTROLLERS; ++i) {
+        controller[i].spinOnce();
+      }
+    }
+    spinner.stop();
+  }
+  else
+  {
+    ROS_DEBUG("Problem connecting to serial device.");
+    ROS_ERROR_STREAM_ONCE("Problem connecting to serial device.");
   }
 }
 
