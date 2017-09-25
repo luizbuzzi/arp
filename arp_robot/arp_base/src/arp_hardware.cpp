@@ -137,7 +137,7 @@ void ArpHardware::initReadFromHardware(int index)
 {
   if (controller[index].connected())
   {
-    controller[0].spinOnce();
+    controller[index].spinOnce();
   }
   else
   {
