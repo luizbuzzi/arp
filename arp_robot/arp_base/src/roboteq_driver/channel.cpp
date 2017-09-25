@@ -103,7 +103,6 @@ void Channel::feedbackCallback(std::vector<std::string> fields)
     msg.supply_current = boost::lexical_cast<float>(fields[8]) / 10.0;
     msg.motor_temperature = boost::lexical_cast<int>(fields[9]) * 0.020153 - 4.1754;
     msg.channel_temperature = boost::lexical_cast<int>(fields[10]);
-    ROS_INFO("%ld", msg.ticks);
   }
   catch (std::bad_cast& e)
   {
