@@ -111,7 +111,7 @@ void ArpHardware::resetTravelOffset()
   for (int i = 0; i < NUM_CONTROLLERS * 2; i++)
   {
     joints_[i].position_offset =
-        controller[i % 2].getChanels()[i % 2]->getFeedBack().measured_position;
+        controller[i/2].getChanels()[i % 2]->getFeedBack().measured_position;
   }
 }
 
