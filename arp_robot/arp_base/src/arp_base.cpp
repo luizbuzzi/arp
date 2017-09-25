@@ -36,9 +36,11 @@ int main(int argc, char *argv[])
   arp_base::ArpHardware arp(nh,private_nh);
   controller_manager::ControllerManager cm(&arp,nh);
 
+  arp.initReadFromHardware();
+
   // Inicializa uma fila de threads separada das rotina do ros
   // utiliza apenas uma thread para nao lidar com problemas de mutiplos acessos
-  ros::CallbackQueue arp_queue;
+  /*ros::CallbackQueue arp_queue;
   ros::AsyncSpinner arp_spinner(1, &arp_queue);
 
   time_source::time_point last_time = time_source::now();
@@ -49,9 +51,8 @@ int main(int argc, char *argv[])
 
   arp_spinner.start();
 
-  arp.initReadFromHardware();
   // Processa as chamadas do ROS separadamente
-  ros::spin();
+  ros::spin();*/
 
   return 0;
 }

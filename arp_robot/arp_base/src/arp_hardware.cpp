@@ -51,8 +51,8 @@ void ArpHardware::updateJointsFromHardware()
   joints_[1].position = controller[1].getChanels()[0]->getFeedBack().ticks;
   joints_[2].position = controller[0].getChanels()[1]->getFeedBack().ticks;
   joints_[3].position = controller[1].getChanels()[1]->getFeedBack().ticks;
-  ROS_INFO("0: %f; 1: %f; 2: %f; 3: %f;", joints_[0].position,
-           joints_[1].position, joints_[2].position, joints_[3].position);
+  // ROS_INFO("0: %f; 1: %f; 2: %f; 3: %f;", joints_[0].position,
+  //         joints_[1].position, joints_[2].position, joints_[3].position);
 }
 
 void ArpHardware::writeCommandsToHardware()
@@ -136,13 +136,13 @@ void ArpHardware::connect(int index, const char* port, const char* position)
 
 void ArpHardware::initReadFromHardware()
 {
-  sleep(5);
   bool allConnected = true;
-  for (int i = 0; i < NUM_CONTROLLERS; i++) {
-    if(!controller[i].connected())
+  for (int i = 0; i < NUM_CONTROLLERS; i++)
+  {
+    if (!controller[i].connected())
     {
       controller[i].connect();
-      if(!controller[i].connected())
+      if (!controller[i].connected())
       {
         allConnected = false;
       }
@@ -152,11 +152,13 @@ void ArpHardware::initReadFromHardware()
   {
     ros::AsyncSpinner spinner(1);
     spinner.start();
-    while(ros::ok())
+    while (ros::ok())
     {
-      for (int i = 0; i < NUM_CONTROLLERS; ++i) {
+      for (int i = 0; i < NUM_CONTROLLERS; ++i)
+      {
         controller[i].spinOnce();
       }
+      updateJointsFromHardware();
     }
     spinner.stop();
   }
