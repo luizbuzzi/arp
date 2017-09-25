@@ -46,6 +46,7 @@ ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
       connect(i, port[i].c_str(), "right");
     }
   }
+  sleep(2);
   resetTravelOffset();
   registerControlInterfaces();
 }
