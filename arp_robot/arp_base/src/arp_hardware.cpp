@@ -5,7 +5,6 @@
 namespace
 {
 const uint8_t CONTROLLER_A = 0, CONTROLLER_B = 1;
-const uint8_t NUM_CONTROLLERS = 2;
 }
 
 namespace arp_base
@@ -134,33 +133,11 @@ void ArpHardware::connect(int index, const char* port, const char* position)
   }
 }
 
-void ArpHardware::initReadFromHardware()
+void ArpHardware::initReadFromHardware(int index)
 {
-  bool allConnected = true;
-  for (int i = 0; i < NUM_CONTROLLERS; i++)
+  if (controller[index].connected())
   {
-    if (!controller[i].connected())
-    {
-      controller[i].connect();
-      if (!controller[i].connected())
-      {
-        allConnected = false;
-      }
-    }
-  }
-  if (allConnected)
-  {
-    ros::AsyncSpinner spinner(1);
-    spinner.start();
-    while (ros::ok())
-    {
-      //for (int i = 0; i < NUM_CONTROLLERS; ++i)
-      {
-        controller[0].spinOnce();
-      }
-      updateJointsFromHardware();
-    }
-    spinner.stop();
+    controller[0].spinOnce();
   }
   else
   {

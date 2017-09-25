@@ -14,13 +14,16 @@ namespace arp_base
 class ArpHardware : public hardware_interface::RobotHW
 {
 public:
+
+  const static uint8_t NUM_CONTROLLERS = 2;
+
   ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh);
 
   void updateJointsFromHardware();
 
   void writeCommandsToHardware();
 
-  void initReadFromHardware();
+  void initReadFromHardware(int index);
 
 private:
   void registerControlInterfaces();
