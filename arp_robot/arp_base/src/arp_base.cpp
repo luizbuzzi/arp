@@ -44,9 +44,11 @@ int main(int argc, char *argv[])
   arp_base::ArpHardware arp(nh,private_nh);
   controller_manager::ControllerManager cm(&arp,nh);
 
-  for (int i = 0; i < arp.NUM_CONTROLLERS; i++) {
-    boost::thread read_controller(boost::bind(readController,boost::ref(arp),boost::ref(i)));
-  }
+  int i = 0;
+
+  boost::thread read_controller1(boost::bind(readController,boost::ref(arp),boost::ref(i)));
+  i = 1;
+  boost::thread read_controller2(boost::bind(readController,boost::ref(arp),boost::ref(i)));
 
   // Inicializa uma fila de threads separada das rotina do ros
   // utiliza apenas uma thread para nao lidar com problemas de mutiplos acessos
