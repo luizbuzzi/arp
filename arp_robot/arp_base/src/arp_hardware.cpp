@@ -113,7 +113,7 @@ void ArpHardware::connect(int index, const char* port, const char* position)
 {
   ROS_DEBUG("Attempting connection to %s for %s wheels", port, position);
 
-  while (1)
+  while (ros::ok())
   {
     controller[index].connect();
 
@@ -154,9 +154,9 @@ void ArpHardware::initReadFromHardware()
     spinner.start();
     while (ros::ok())
     {
-      for (int i = 0; i < NUM_CONTROLLERS; ++i)
+      //for (int i = 0; i < NUM_CONTROLLERS; ++i)
       {
-        controller[i].spinOnce();
+        controller[0].spinOnce();
       }
       updateJointsFromHardware();
     }
