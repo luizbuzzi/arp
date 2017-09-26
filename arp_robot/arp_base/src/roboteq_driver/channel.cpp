@@ -36,7 +36,7 @@ Channel::Channel(int channel_num, std::string ns, Controller* controller) :
 {
   // Don't start this timer until we've received the first motion command, otherwise it
   // can interfere with code download on device startup.
-  timeout_timer_ = nh_.createTimer(ros::Duration(0.1), &Channel::timeoutCallback, this);
+  timeout_timer_ = nh_.createTimer(ros::Duration(0.5), &Channel::timeoutCallback, this);
   timeout_timer_.stop();
 }
 
