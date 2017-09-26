@@ -1,6 +1,7 @@
 #include "arp_base/arp_hardware.h"
 #include <boost/assign/list_of.hpp>
 #include "arp_base/roboteq_driver/controller.h"
+#include "arp_base/roboteq_driver/channel.h"
 
 namespace
 {
@@ -77,15 +78,10 @@ void ArpHardware::updateJointsFromHardware()
 
 void ArpHardware::writeCommandsToHardware()
 {
-  double diff_speed_left = angularToLinear(joints_[0].velocity_command);
-  double diff_speed_right = angularToLinear(joints_[1].velocity_command);
-
-  limitDifferentialSpeed(diff_speed_left, diff_speed_right);
-
-  joints_[0].velocity = diff_speed_left;
-  joints_[1].velocity = diff_speed_right;
-  joints_[2].velocity = diff_speed_left;
-  joints_[3].velocity = diff_speed_right;
+  for (int i = 0; i < NUM_CONTROLLERS * 2; i++)
+  {
+    controller[i/2].getChanels()[i%2]->cmdCallback(1, joints_[i].velocity_command);
+  }
 }
 
 void ArpHardware::registerControlInterfaces()

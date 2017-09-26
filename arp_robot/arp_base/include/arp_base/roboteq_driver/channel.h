@@ -50,6 +50,7 @@ public:
   Channel(int channel_num, std::string ns, Controller* controller);
   void feedbackCallback(std::vector<std::string>);
   FeedBack getFeedBack(){return msg;}
+  void cmdCallback(const uint8_t mode, const float_t setpoint);
 
 protected:
   /**
@@ -94,7 +95,6 @@ protected:
     return x * (2 * M_PI) / 480;
   }
 
-  void cmdCallback(const uint8_t mode, const float_t setpoint);
   void timeoutCallback(const ros::TimerEvent&);
 
   ros::NodeHandle nh_;
