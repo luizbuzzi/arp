@@ -80,7 +80,7 @@ void ArpHardware::writeCommandsToHardware()
 {
   for (int i = 0; i < NUM_CONTROLLERS * 2; i++)
   {
-    controller[i/2].getChanels()[i%2]->cmdCallback(1, joints_[i].velocity_command);
+   // controller[i/2].getChanels()[i%2]->cmdCallback(1, joints_[i].velocity_command);
   }
 }
 
