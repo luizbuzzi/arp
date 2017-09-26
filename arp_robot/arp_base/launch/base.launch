@@ -13,7 +13,6 @@
           wheel_diameter: 0.3302
           polling_timeout: 10.0
       </rosparam>
-      <remap to="cmd_vel" from="arp_velocity_controller/cmd_vel" />
     </node>
 
     <!-- Differential controller parameters and basic localization-->
