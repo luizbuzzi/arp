@@ -55,6 +55,8 @@ private:
 
   roboteq::Controller controller[2];
 
+  double teste;
+
   // Joint structure
   struct Joint
   {

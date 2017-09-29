@@ -20,11 +20,11 @@
     <!-- Differential controller parameters and basic localization-->
     <include file="$(find arp_control)/launch/control2.launch" />
 
-
+    <!--
     <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop" output="screen" launch-prefix="xterm -e">
       <remap from="cmd_vel" to="arp_velocity_controller/cmd_vel" />
     </node>
-
+    -->
 
     <!--Teleop
     <include file="$(find husky_control)/launch/teleop.launch" />
