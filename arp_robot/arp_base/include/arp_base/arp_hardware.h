@@ -30,6 +30,8 @@ private:
 
   void resetTravelOffset();
 
+  double velocityDiscretizationFromController(double velocity);
+
   void setupChannel(int index,const char* position);
 
   void connect(int index,const char* port,const char* position);

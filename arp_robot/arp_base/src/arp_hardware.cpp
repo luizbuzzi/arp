@@ -5,7 +5,8 @@
 
 namespace
 {
-const uint8_t CONTROLLER_A = 0, CONTROLLER_B = 1;
+const double RAD_STEP=1.308996939;
+
 }
 
 namespace arp_base
@@ -79,7 +80,7 @@ void ArpHardware::writeCommandsToHardware()
 {
   for (int i = 0; i < NUM_CONTROLLERS * 2; i++)
   {
-    controller[i/2].getChanels()[i%2]->cmdCallback(0, joints_[i].velocity_command);
+    controller[i/2].getChanels()[i%2]->cmdCallback(0, velocityDiscretizationFromController(joints_[i].velocity_command));
   }
 }
 
@@ -109,6 +110,12 @@ void ArpHardware::resetTravelOffset()
     joints_[i].position_offset =
         controller[i/2].getChanels()[i % 2]->getFeedBack().measured_position;
   }
+}
+
+double ArpHardware::velocityDiscretizationFromController(double velocity)
+{
+  int velocity_ = velocity/RAD_STEP;
+  return velocity_ * RAD_STEP;
 }
 
 void ArpHardware::setupChannel(int index, const char* position)
