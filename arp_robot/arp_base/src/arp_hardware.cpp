@@ -178,15 +178,17 @@ void ArpHardware::updateStatus()
 {
   arp_status_msg_.header.stamp = ros::Time::now();
   for (int i = 0; i < NUM_CONTROLLERS; i++) {
-    arp_status_msg_.controller_name.push_back(controller_[i].getControllerName());
+    arp_status_msg_.controller_name[i]=controller_[i].getControllerName();
   }
-
 
 }
 
 void ArpHardware::initializeStatus()
 {
   status_publisher_ = nh_.advertise<arp_msgs::ArpStatus>("status",10);
+  for (int i = 0; i < NUM_CONTROLLERS; i++) {
+    arp_status_msg_.controller_name.push_back("");
+  }
 }
 
 void ArpHardware::limitDifferentialSpeed(double& travel_speed_left,
