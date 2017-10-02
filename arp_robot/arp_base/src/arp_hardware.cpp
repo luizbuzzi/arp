@@ -21,7 +21,7 @@ namespace arp_base
 ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
     : nh_(nh), private_nh_(private_nh)
 {
-  private_nh_.param<double>("wheel_diameter", wheel_diameter_, 0.3);
+  private_nh_.param<double>("wheel_diameter", wheel_diameter_, 0.26);
   private_nh_.param<double>("max_accel", max_accel_, 5.0);
   private_nh_.param<double>("max_speed", max_speed_, 10.0);
   private_nh_.param<double>("polling_timeout_", polling_timeout_, 10.0);
