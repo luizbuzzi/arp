@@ -177,19 +177,32 @@ void ArpHardware::initializeReadFromHardware(int index)
 
 void ArpHardware::updateStatus()
 {
-  arp_status_msg_.header.stamp = ros::Time::now();
+  arp_msgs::ArpStatus arp_status_msg;
+  arp_status_msg.header.stamp = ros::Time::now();
   for (int i = 0; i < NUM_CONTROLLERS; i++) {
-    arp_status_msg_.controller_name[i]=controller_[i].getControllerName();
+    arp_status_msg.controller_name.push_back(controller_[i].getControllerName());
+    arp_status_msg.fault.push_back(controller_[i].getStatus().fault);
+    arp_status_msg.status.push_back(controller_[i].getStatus().status);
+    arp_status_msg.internal_voltage.push_back(controller_[i].getStatus().internal_voltage);
+    arp_status_msg.adc_voltage.push_back(controller_[i].getStatus().adc_voltage);
+    for (int f = 0; f < 2; f++) {
+      arp_status_msg.channel_name.push_back(controller_[i].getChanels()[f]->getName());
+      arp_status_msg.motor_current.push_back(controller_[i].getChanels()[f]->getFeedBack().motor_current);
+      arp_status_msg.motor_power.push_back(controller_[i].getChanels()[f]->getFeedBack().motor_power);
+      arp_status_msg.commanded_velocity.push_back(controller_[i].getChanels()[f]->getFeedBack().commanded_velocity);
+      arp_status_msg.supply_voltage.push_back(controller_[i].getChanels()[f]->getFeedBack().supply_voltage);
+      arp_status_msg.supply_current.push_back(controller_[i].getChanels()[f]->getFeedBack().supply_current);
+      arp_status_msg.channel_status.push_back(controller_[i].getChanels()[f]->getFeedBack().channel_status);
+      arp_status_msg.motor_temperature.push_back(controller_[i].getChanels()[f]->getFeedBack().motor_temperature);
+      arp_status_msg.channel_temperature.push_back(controller_[i].getChanels()[f]->getFeedBack().channel_temperature);
+    }
   }
-  status_publisher_.publish(arp_status_msg_);
+  status_publisher_.publish(arp_status_msg);
 }
 
 void ArpHardware::initializeStatus()
 {
   status_publisher_ = nh_.advertise<arp_msgs::ArpStatus>("status",10);
-  for (int i = 0; i < NUM_CONTROLLERS; i++) {
-    arp_status_msg_.controller_name.push_back("");
-  }
 }
 
 void ArpHardware::limitDifferentialSpeed(double& travel_speed_left,

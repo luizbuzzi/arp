@@ -44,6 +44,15 @@ class Controller {
   friend class Channel;
 
 private :
+  struct Status
+  {
+    uint fault;
+    uint status;
+    float internal_voltage;
+    float adc_voltage;
+    float ic_temperature;
+  };
+
   const char *port_;
   int baud_;
   bool connected_;
@@ -53,6 +62,8 @@ private :
   std::stringstream tx_buffer_;
   std::vector<Channel*> channels_;
   std::string name_;
+
+  Status msg_;
 
   void read();
   void write(std::string);
@@ -132,15 +143,7 @@ public :
 
   void setSerialEcho(bool serial_echo) { param << "ECHOF" << (serial_echo ? 0 : 1) << sendVerify; }
 
-  struct Status
-  {
-    uint fault;
-    uint status;
-    float internal_voltage;
-    float adc_voltage;
-    float ic_temperature;
-  };
-
+  Status getStatus(){return msg_;}
 };
 
 }

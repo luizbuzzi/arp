@@ -195,8 +195,6 @@ void Controller::flush()
 
 void Controller::processStatus(std::string str)
 {
-  Status msg;
-
   std::vector<std::string> fields;
   boost::split(fields, str, boost::algorithm::is_any_of(":"));
   try
@@ -226,11 +224,11 @@ void Controller::processStatus(std::string str)
       return;
     }
 
-    msg.fault = boost::lexical_cast<int>(fields[2]);
-    msg.status = boost::lexical_cast<int>(fields[3]);
-    msg.internal_voltage = boost::lexical_cast<int>(fields[4]);
-    msg.adc_voltage = boost::lexical_cast<int>(fields[5]);
-    msg.ic_temperature = boost::lexical_cast<int>(fields[6]);
+    msg_.fault = boost::lexical_cast<int>(fields[2]);
+    msg_.status = boost::lexical_cast<int>(fields[3]);
+    msg_.internal_voltage = boost::lexical_cast<int>(fields[4]);
+    msg_.adc_voltage = boost::lexical_cast<int>(fields[5]);
+    msg_.ic_temperature = boost::lexical_cast<int>(fields[6]);
   }
   catch (std::bad_cast& e)
   {

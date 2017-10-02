@@ -56,7 +56,6 @@ private:
 
   // ROS Node Status
   ros::Publisher status_publisher_;
-  arp_msgs::ArpStatus arp_status_msg_;
 
   //Robotec controlers
 
