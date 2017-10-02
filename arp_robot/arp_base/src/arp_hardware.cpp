@@ -37,11 +37,11 @@ ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
                                baund[i], 115200);
     if (i % 2)
     {
-      controller_[i].controlerInit(port[i].c_str(), baund[i], "left_controller");
+      controller_[i].controlerInit(port[i].c_str(), baund[i], "left");
     }
     else
     {
-      controller_[i].controlerInit(port[i].c_str(), baund[i], "right_controller");
+      controller_[i].controlerInit(port[i].c_str(), baund[i], "right");
     }
     controller_[i].startScript();
     setupChannel(i);
@@ -181,7 +181,7 @@ void ArpHardware::updateStatus()
   for (int i = 0; i < NUM_CONTROLLERS; i++) {
     arp_status_msg_.controller_name[i]=controller_[i].getControllerName();
   }
-
+  status_publisher_.publish(arp_status_msg_);
 }
 
 void ArpHardware::initializeStatus()
