@@ -53,6 +53,15 @@ ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
   registerControlInterfaces();
 }
 
+ArpHardware::~ArpHardware()
+{
+  for (int i = 0; i < NUM_CONTROLLERS; i++)
+  {
+    controller[i].setEstop();
+    controller[i].stopScript();
+  }
+}
+
 void ArpHardware::updateJointsFromHardware()
 {
   for (int i = 0; i < NUM_CONTROLLERS * 2; i++)
@@ -73,8 +82,8 @@ void ArpHardware::updateJointsFromHardware()
     }
     joints_[i].velocity = controller[i/2].getChanels()[i % 2]->getFeedBack().measured_velocity;
   }
-  ROS_INFO("0: %f; 1: %f; 2: %f; 3: %f;", joints_[0].position,
-  joints_[1].position, joints_[2].position, joints_[3].position);
+  //ROS_INFO("0: %f; 1: %f; 2: %f; 3: %f;", joints_[0].position,
+  //joints_[1].position, joints_[2].position, joints_[3].position);
 }
 
 void ArpHardware::writeCommandsToHardware()
@@ -87,8 +96,8 @@ void ArpHardware::writeCommandsToHardware()
 
 void ArpHardware::registerControlInterfaces()
 {
-  ros::V_string joint_names = boost::assign::list_of("front_left_wheel")(
-      "front_right_wheel")("back_left_wheel")("back_right_wheel");
+  ros::V_string joint_names = boost::assign::list_of("back_left_wheel")(
+      "front_left_wheel")("back_right_wheel")("front_right_wheel");
   for (int i = 0; i < joint_names.size(); i++)
   {
     hardware_interface::JointStateHandle joint_state_handle(

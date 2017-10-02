@@ -19,6 +19,8 @@ public:
 
   ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh);
 
+  ~ArpHardware();
+
   void updateJointsFromHardware();
 
   void writeCommandsToHardware();
