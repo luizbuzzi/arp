@@ -96,8 +96,8 @@ void ArpHardware::writeCommandsToHardware()
 
 void ArpHardware::registerControlInterfaces()
 {
-  ros::V_string joint_names = boost::assign::list_of("front_right_wheel")(
-      "back_right_wheel")("front_left_wheel")("back_left_wheel");
+  ros::V_string joint_names = boost::assign::list_of("front_left_wheel")(
+      "back_left_wheel")("front_right_wheel")("back_right_wheel");
   for (int i = 0; i < joint_names.size(); i++)
   {
     hardware_interface::JointStateHandle joint_state_handle(
