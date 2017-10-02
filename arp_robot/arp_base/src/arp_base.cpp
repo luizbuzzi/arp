@@ -22,7 +22,7 @@ void controlLoop(arp_base::ArpHardware& arp,
 
 void diagnosticLoop(arp_base::ArpHardware& arp)
 {
-  // arp.updateDiagnostics();
+  arp.updateStatus();
 }
 
 void readController(arp_base::ArpHardware& arp, int& index)

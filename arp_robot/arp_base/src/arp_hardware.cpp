@@ -49,6 +49,7 @@ ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
   }
   resetTravelOffset();
   registerControlInterfaces();
+  initializeStatus();
 }
 
 ArpHardware::~ArpHardware()
