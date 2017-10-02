@@ -47,6 +47,7 @@ ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
       setupChannel(i, "right");
       connect(i, port[i].c_str(), "right");
     }
+    controller[i].startScript();
   }
   resetTravelOffset();
   registerControlInterfaces();
