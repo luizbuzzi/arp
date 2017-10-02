@@ -52,6 +52,7 @@ private :
   serial::Serial *serial_;
   std::stringstream tx_buffer_;
   std::vector<Channel*> channels_;
+  std::string name_;
 
   void read();
   void write(std::string);
@@ -108,7 +109,7 @@ protected:
 public :
   Controller ();
 
-  void controlerInit(const char *port, int baud);
+  void controlerInit(const char *port, int baud, std::string name);
   std::vector<Channel*> getChanels(){return channels_;}
 
   void addChannel(Channel* channel);
@@ -116,6 +117,7 @@ public :
   bool connected() { return connected_; }
   void spinOnce() { read(); }
   void flush();
+  std::string getControllerName(){ return name_; }
 
   // Send commands to motor driver.
   void setEstop() { command << "EX" << send; }
@@ -134,6 +136,8 @@ public :
   {
     uint fault;
     uint status;
+    float internal_voltage;
+    float adc_voltage;
     float ic_temperature;
   };
 

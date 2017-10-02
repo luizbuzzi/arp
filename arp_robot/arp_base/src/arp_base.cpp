@@ -29,7 +29,7 @@ void readController(arp_base::ArpHardware& arp, int& index)
 {
   while (ros::ok())
   {
-    arp.initReadFromHardware(index);
+    arp.initializeReadFromHardware(index);
   }
 }
 

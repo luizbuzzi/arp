@@ -8,7 +8,7 @@ project(arp_base)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS hardware_interface sensor_msgs roscpp
-  controller_manager serial)
+  controller_manager serial arp_msgs)
 find_package(Boost REQUIRED COMPONENTS chrono)
 
 ## System dependencies are found with CMake's conventions

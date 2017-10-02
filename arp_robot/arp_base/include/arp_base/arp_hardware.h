@@ -7,6 +7,7 @@
 #include "arp_base/roboteq_driver/channel.h"
 #include "ros/ros.h"
 #include "sensor_msgs/JointState.h"
+#include "arp_msgs/ArpStatus.h"
 
 namespace arp_base
 {
@@ -25,22 +26,22 @@ public:
 
   void writeCommandsToHardware();
 
-  void initReadFromHardware(int index);
+  void initializeReadFromHardware(int index);
+
+  void updateStatus();
 
 private:
+  void initializeStatus();
+
   void registerControlInterfaces();
 
   void resetTravelOffset();
 
   double velocityDiscretizationFromController(double velocity);
 
-  void setupChannel(int index,const char* position);
+  void setupChannel(int index);
 
-  void connect(int index,const char* port,const char* position);
-
-  double linearToAngular(const double &travel) const;
-
-  double angularToLinear(const double &angle) const;
+  void connect(int index,const char* port);
 
   void limitDifferentialSpeed(double &travel_speed_left, double &travel_speed_right);
 
@@ -51,13 +52,16 @@ private:
   hardware_interface::VelocityJointInterface velocity_joint_interface_;
 
   // ROS Parameters
-  double wheel_diameter_, max_accel_, max_speed_;
+  double wheel_diameter_, max_accel_, max_speed_,polling_timeout_;
 
-  double polling_timeout_;
+  // ROS Node Status
+  ros::Publisher status_publisher_;
+  arp_msgs::ArpStatus arp_status_msg_;
 
   //Robotec controlers
 
-  roboteq::Controller controller[2];
+  roboteq::Controller controller_[2];
+
 
   // Joint structure
   struct Joint

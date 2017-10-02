@@ -21,10 +21,9 @@ namespace arp_base
 ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
     : nh_(nh), private_nh_(private_nh)
 {
-  private_nh_.param<double>("wheel_diameter", wheel_diameter_, 0.26);
   private_nh_.param<double>("max_accel", max_accel_, 5.0);
   private_nh_.param<double>("max_speed", max_speed_, 10.0);
-  private_nh_.param<double>("polling_timeout_", polling_timeout_, 10.0);
+  private_nh_.param<double>("polling_timeout_", polling_timeout_, 0.15);
 
   std::string port[NUM_CONTROLLERS];
   int32_t baund[NUM_CONTROLLERS];
@@ -36,18 +35,17 @@ ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
         "/dev/ttyACM" + boost::lexical_cast<std::string>(i));
     private_nh_.param<int32_t>("baund_" + boost::lexical_cast<std::string>(i),
                                baund[i], 115200);
-    controller[i].controlerInit(port[i].c_str(), baund[i]);
     if (i % 2)
     {
-      setupChannel(i, "left");
-      connect(i, port[i].c_str(), "left");
+      controller_[i].controlerInit(port[i].c_str(), baund[i], "left_controller");
     }
     else
     {
-      setupChannel(i, "right");
-      connect(i, port[i].c_str(), "right");
+      controller_[i].controlerInit(port[i].c_str(), baund[i], "right_controller");
     }
-    controller[i].startScript();
+    controller_[i].startScript();
+    setupChannel(i);
+    connect(i, port[i].c_str());
   }
   resetTravelOffset();
   registerControlInterfaces();
@@ -57,8 +55,8 @@ ArpHardware::~ArpHardware()
 {
   for (int i = 0; i < NUM_CONTROLLERS; i++)
   {
-    controller[i].setEstop();
-    controller[i].stopScript();
+    controller_[i].setEstop();
+    controller_[i].stopScript();
   }
 }
 
@@ -67,7 +65,7 @@ void ArpHardware::updateJointsFromHardware()
   for (int i = 0; i < NUM_CONTROLLERS * 2; i++)
   {
     double delta =
-        controller[i/2].getChanels()[i % 2]->getFeedBack().measured_position -
+        controller_[i/2].getChanels()[i % 2]->getFeedBack().measured_position -
         joints_[i].position - joints_[i].position_offset;
 
     // detecta perda de dados do encoder
@@ -80,7 +78,7 @@ void ArpHardware::updateJointsFromHardware()
       joints_[i].position_offset += delta;
       ROS_DEBUG("Dropping overflow measurement from encoder");
     }
-    joints_[i].velocity = controller[i/2].getChanels()[i % 2]->getFeedBack().measured_velocity;
+    joints_[i].velocity = controller_[i/2].getChanels()[i % 2]->getFeedBack().measured_velocity;
   }
   //ROS_INFO("0: %f; 1: %f; 2: %f; 3: %f;", joints_[0].position,
   //joints_[1].position, joints_[2].position, joints_[3].position);
@@ -90,7 +88,7 @@ void ArpHardware::writeCommandsToHardware()
 {
   for (int i = 0; i < NUM_CONTROLLERS * 2; i++)
   {
-    controller[i/2].getChanels()[i%2]->cmdCallback(0, velocityDiscretizationFromController(joints_[i].velocity_command));
+    controller_[i/2].getChanels()[i%2]->cmdCallback(0, velocityDiscretizationFromController(joints_[i].velocity_command));
   }
 }
 
@@ -118,7 +116,7 @@ void ArpHardware::resetTravelOffset()
   for (int i = 0; i < NUM_CONTROLLERS * 2; i++)
   {
     joints_[i].position_offset =
-        controller[i/2].getChanels()[i % 2]->getFeedBack().measured_position;
+        controller_[i/2].getChanels()[i % 2]->getFeedBack().measured_position;
   }
 }
 
@@ -128,46 +126,46 @@ double ArpHardware::velocityDiscretizationFromController(double velocity)
   return velocity_ * RAD_STEP;
 }
 
-void ArpHardware::setupChannel(int index, const char* position)
+void ArpHardware::setupChannel(int index)
 {
-  controller[index].addChannel(new roboteq::Channel(
-      1, "front_" + boost::lexical_cast<std::string>(position) + "_wheel",
-      &controller[index]));
-  controller[index].addChannel(new roboteq::Channel(
-      2, "back_" + boost::lexical_cast<std::string>(position) + "_wheel",
-      &controller[index]));
+  controller_[index].addChannel(new roboteq::Channel(
+      1, "front_" + boost::lexical_cast<std::string>(controller_[index].getControllerName()) + "_wheel",
+      &controller_[index],polling_timeout_));
+  controller_[index].addChannel(new roboteq::Channel(
+      2, "back_" + boost::lexical_cast<std::string>(controller_[index].getControllerName()) + "_wheel",
+      &controller_[index],polling_timeout_));
 }
 
-void ArpHardware::connect(int index, const char* port, const char* position)
+void ArpHardware::connect(int index, const char* port)
 {
-  ROS_DEBUG("Attempting connection to %s for %s wheels", port, position);
+  ROS_DEBUG("Attempting connection to %s for %s wheels", port, controller_[index].getControllerName().c_str());
 
   while (ros::ok())
   {
-    controller[index].connect();
+    controller_[index].connect();
 
-    if (controller[index].connected())
+    if (controller_[index].connected())
     {
-      ROS_DEBUG("Connection successful to %s for %s wheels", port, position);
-      ROS_INFO("Connection successful to %s for %s wheels", port, position);
+      ROS_DEBUG("Connection successful to %s for %s wheels", port, controller_[index].getControllerName().c_str());
+      ROS_INFO("Connection successful to %s for %s wheels", port, controller_[index].getControllerName().c_str());
       break;
     }
     else
     {
       ROS_DEBUG("Problem connecting to serial device.");
       ROS_ERROR_STREAM_ONCE("Problem connecting to "
-                            << position
+                            << controller_[index].getControllerName().c_str()
                             << " controller.Try again in 1 second.");
       sleep(1);
     }
   }
 }
 
-void ArpHardware::initReadFromHardware(int index)
+void ArpHardware::initializeReadFromHardware(int index)
 {
-  if (controller[index].connected())
+  if (controller_[index].connected())
   {
-    controller[index].spinOnce();
+    controller_[index].spinOnce();
   }
   else
   {
@@ -176,14 +174,19 @@ void ArpHardware::initReadFromHardware(int index)
   }
 }
 
-double ArpHardware::linearToAngular(const double& travel) const
+void ArpHardware::updateStatus()
 {
-  return travel / wheel_diameter_ * 2;
+  arp_status_msg_.header.stamp = ros::Time::now();
+  for (int i = 0; i < NUM_CONTROLLERS; i++) {
+    arp_status_msg_.controller_name.push_back(controller_[i].getControllerName());
+  }
+
+
 }
 
-double ArpHardware::angularToLinear(const double& angle) const
+void ArpHardware::initializeStatus()
 {
-  return angle * wheel_diameter_ / 2;
+  status_publisher_ = nh_.advertise<arp_msgs::ArpStatus>("status",10);
 }
 
 void ArpHardware::limitDifferentialSpeed(double& travel_speed_left,

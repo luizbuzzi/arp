@@ -30,13 +30,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace roboteq {
 
-Channel::Channel(int channel_num, std::string ns, Controller* controller) :
-  channel_num_(channel_num), nh_(ns), controller_(controller), max_rpm_(3500),
-  last_mode_(255)
+Channel::Channel(int channel_num, std::string nh, Controller* controller,int polling_timeout) :
+  channel_num_(channel_num), nh_(nh), name_(nh), controller_(controller), max_rpm_(3500),
+  last_mode_(255),polling_timeout_(polling_timeout)
 {
   // Don't start this timer until we've received the first motion command, otherwise it
   // can interfere with code download on device startup.
-  timeout_timer_ = nh_.createTimer(ros::Duration(0.5), &Channel::timeoutCallback, this);
+  timeout_timer_ = nh_.createTimer(ros::Duration(polling_timeout_), &Channel::timeoutCallback, this);
   timeout_timer_.stop();
 }
 
@@ -93,16 +93,17 @@ void Channel::feedbackCallback(std::vector<std::string> fields)
   // see mbs/script.mbs for URL and specific page references.
   try
   {
-    msg.motor_current = boost::lexical_cast<float>(fields[2]) / 10;
-    msg.commanded_velocity = from_rpm(boost::lexical_cast<double>(fields[3]));
-    msg.motor_power = boost::lexical_cast<float>(fields[4]) / 1000.0;
-    msg.measured_velocity = from_rpm(boost::lexical_cast<double>(fields[5]));
-    msg.ticks = boost::lexical_cast<long>(fields[6]);
-    msg.measured_position = from_encoder_ticks(boost::lexical_cast<double>(fields[6]));
-    msg.supply_voltage = boost::lexical_cast<float>(fields[7]) / 10.0;
-    msg.supply_current = boost::lexical_cast<float>(fields[8]) / 10.0;
-    msg.motor_temperature = boost::lexical_cast<int>(fields[9]) * 0.020153 - 4.1754;
-    msg.channel_temperature = boost::lexical_cast<int>(fields[10]);
+    msg_.motor_current = boost::lexical_cast<float>(fields[2]) / 10;
+    msg_.commanded_velocity = from_rpm(boost::lexical_cast<double>(fields[3]));
+    msg_.motor_power = boost::lexical_cast<float>(fields[4]) / 1000.0;
+    msg_.measured_velocity = from_rpm(boost::lexical_cast<double>(fields[5]));
+    msg_.ticks = boost::lexical_cast<long>(fields[6]);
+    msg_.measured_position = from_encoder_ticks(boost::lexical_cast<double>(fields[6]));
+    msg_.supply_voltage = boost::lexical_cast<float>(fields[7]) / 10.0;
+    msg_.supply_current = boost::lexical_cast<float>(fields[8]) / 10.0;
+    msg_.motor_temperature = boost::lexical_cast<int>(fields[9]) * 0.020153 - 4.1754;
+    msg_.channel_temperature = boost::lexical_cast<int>(fields[10]);
+    msg_.channel_status = boost::lexical_cast<int>(fields[11]);
   }
   catch (std::bad_cast& e)
   {

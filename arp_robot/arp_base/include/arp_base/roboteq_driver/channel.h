@@ -45,11 +45,13 @@ public:
     float supply_current;
     int motor_temperature;
     int channel_temperature;
+    int channel_status;
   };
 
-  Channel(int channel_num, std::string ns, Controller* controller);
+  Channel(int channel_num, std::string nh, Controller* controller, int polling_timeout);
   void feedbackCallback(std::vector<std::string>);
-  FeedBack getFeedBack(){return msg;}
+  FeedBack getFeedBack(){return msg_;}
+  std::string getName(){ return name_;}
   void cmdCallback(const uint8_t mode, const float_t setpoint);
 
 protected:
@@ -97,6 +99,8 @@ protected:
 
   void timeoutCallback(const ros::TimerEvent&);
 
+  std::string name_;
+
   ros::NodeHandle nh_;
   boost::shared_ptr<Controller> controller_;
   int channel_num_;
@@ -107,8 +111,9 @@ protected:
   ros::Time last_feedback_time_;
   uint8_t last_mode_;
 
-  FeedBack msg;
+  FeedBack msg_;
 
+  int polling_timeout_;
 };
 
 enum ModePosition
