@@ -72,8 +72,8 @@ void ArpHardware::updateJointsFromHardware()
     }
     joints_[i].velocity = controller[i/2].getChanels()[i % 2]->getFeedBack().measured_velocity;
   }
-  //ROS_INFO("0: %f; 1: %f; 2: %f; 3: %f;", joints_[0].position,
-  //joints_[1].velocity_command, joints_[2].velocity_command, joints_[3].velocity_command);
+  ROS_INFO("0: %f; 1: %f; 2: %f; 3: %f;", joints_[0].position,
+  joints_[1].position, joints_[2].position, joints_[3].position);
 }
 
 void ArpHardware::writeCommandsToHardware()
