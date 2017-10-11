@@ -20,11 +20,17 @@ void controlLoop(arp_base::ArpHardware& arp,
   arp.writeCommandsToHardware();
 }
 
+/*
+ * Loop de diagnóstico
+*/
 void diagnosticLoop(arp_base::ArpHardware& arp)
 {
   arp.updateStatus();
 }
 
+/*
+ * Loop de leitura pra os controladores Robotec
+*/
 void readController(arp_base::ArpHardware& arp, int& index)
 {
   while (ros::ok())

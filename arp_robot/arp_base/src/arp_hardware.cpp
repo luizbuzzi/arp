@@ -21,13 +21,12 @@ namespace arp_base
 ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
     : nh_(nh), private_nh_(private_nh)
 {
-  private_nh_.param<double>("max_accel", max_accel_, 5.0);
-  private_nh_.param<double>("max_speed", max_speed_, 10.0);
   private_nh_.param<double>("polling_timeout_", polling_timeout_, 0.15);
 
   std::string port[NUM_CONTROLLERS];
   int32_t baund[NUM_CONTROLLERS];
 
+  // inicializa os controladores individualmente com os paramtros do ROS
   for (int i = 0; i < NUM_CONTROLLERS; i++)
   {
     private_nh_.param<std::string>(
@@ -52,6 +51,9 @@ ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
   initializeStatus();
 }
 
+/**
+ * Para os motores e encerra o script ao destruir a classe
+*/
 ArpHardware::~ArpHardware()
 {
   for (int i = 0; i < NUM_CONTROLLERS; i++)
@@ -61,6 +63,14 @@ ArpHardware::~ArpHardware()
   }
 }
 
+/**
+ * Pega os dados coletados pelo driver Roboteq,
+ * Calcula o delsocamento com base no offset aplicado na inicialização
+ * Em caso de um deslocamento ecessivo o controle zera o offset
+ * Os dados de velocidade também são coletados e passados para o ROS
+ * Como cada controlador controla dois motores os parametros pares
+ * Vão para o motor da frente e os impares para o motor de traz
+*/
 void ArpHardware::updateJointsFromHardware()
 {
   for (int i = 0; i < NUM_CONTROLLERS * 2; i++)
@@ -81,10 +91,13 @@ void ArpHardware::updateJointsFromHardware()
     }
     joints_[i].velocity = controller_[i/2].getChanels()[i % 2]->getFeedBack().measured_velocity;
   }
-  //ROS_INFO("0: %f; 1: %f; 2: %f; 3: %f;", joints_[0].position,
-  //joints_[1].position, joints_[2].position, joints_[3].position);
 }
 
+/**
+ * Envia os  comandos de velocidade para o controlador
+ * Como cada controlador controla dois motores os parametros pares
+ * Vão para o motor da frente e os impares para o motor de traz
+*/
 void ArpHardware::writeCommandsToHardware()
 {
   for (int i = 0; i < NUM_CONTROLLERS * 2; i++)
@@ -93,6 +106,10 @@ void ArpHardware::writeCommandsToHardware()
   }
 }
 
+/**
+ * Registra os controles na interface do ROS
+ * Os parametros são correspondentes da struct joint declarada no .h
+*/
 void ArpHardware::registerControlInterfaces()
 {
   ros::V_string joint_names = boost::assign::list_of("front_left_wheel")(
@@ -112,6 +129,11 @@ void ArpHardware::registerControlInterfaces()
   registerInterface(&velocity_joint_interface_);
 }
 
+/**
+ * Obtem os valores de offset na icialização do dispositivo
+ * Como cada controlador controla dois motores os parametros pares
+ * Vão para o motor da frente e os impares para o motor de traz
+ */
 void ArpHardware::resetTravelOffset()
 {
   for (int i = 0; i < NUM_CONTROLLERS * 2; i++)
@@ -121,12 +143,21 @@ void ArpHardware::resetTravelOffset()
   }
 }
 
+/**
+ * Está rotina discretiza os valores de velocidade para multiplos de 12,5 RPM
+ * isto acontece devido a baixa resolução dos encoders, retornando para o controle velocidades
+ * multiplas de 12,5 RPM. Com isso o controlador não consegue controlar velocidades entre esse valor devido
+ * ao erro gerado no PID.
+*/
 double ArpHardware::velocityDiscretizationFromController(double velocity)
 {
   int velocity_ = velocity/RAD_STEP;
   return velocity_ * RAD_STEP;
 }
 
+/**
+ * Inicializa dois canais por controlador, visto que cada controlador opera dois motores
+*/
 void ArpHardware::setupChannel(int index)
 {
   controller_[index].addChannel(new roboteq::Channel(
@@ -137,6 +168,10 @@ void ArpHardware::setupChannel(int index)
       &controller_[index],polling_timeout_));
 }
 
+/**
+ * Conecta os controladores com suas respectivas portas serias,
+ * em caso de insucesso o sistema entra em um loop para forçar a conexão
+*/
 void ArpHardware::connect(int index, const char* port)
 {
   ROS_DEBUG("Attempting connection to %s for %s wheels", port, controller_[index].getControllerName().c_str());
@@ -162,6 +197,9 @@ void ArpHardware::connect(int index, const char* port)
   }
 }
 
+/**
+ * Rotina de leitura do driver Roboteq, caso conectado ele executa a rotina
+*/
 void ArpHardware::initializeReadFromHardware(int index)
 {
   if (controller_[index].connected())
@@ -175,6 +213,9 @@ void ArpHardware::initializeReadFromHardware(int index)
   }
 }
 
+/**
+ * Atualiza o topico de status com os valores coletados do driver Roboteq
+*/
 void ArpHardware::updateStatus()
 {
   arp_msgs::ArpStatus arp_status_msg;
@@ -200,21 +241,13 @@ void ArpHardware::updateStatus()
   status_publisher_.publish(arp_status_msg);
 }
 
+/**
+ * Inicializa o topico status
+*/
 void ArpHardware::initializeStatus()
 {
   status_publisher_ = nh_.advertise<arp_msgs::ArpStatus>("status",10);
 }
 
-void ArpHardware::limitDifferentialSpeed(double& travel_speed_left,
-                                         double& travel_speed_right)
-{
-  double large_speed =
-      std::max(std::abs(travel_speed_left), std::abs(travel_speed_right));
 
-  if (large_speed > max_speed_)
-  {
-    travel_speed_left *= max_speed_ / large_speed;
-    travel_speed_right *= max_speed_ / large_speed;
-  }
-}
 }

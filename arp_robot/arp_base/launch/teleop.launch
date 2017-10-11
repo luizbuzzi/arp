@@ -1,7 +1,7 @@
 <launch>
 
-<node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop" output="screen" launch-prefix="xterm -e">
-  <remap from="cmd_vel" to="arp_node/arp_velocity_controller/cmd_vel" />
-</node>
+  <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop" output="screen" launch-prefix="xterm -e">
+    <remap from="cmd_vel" to="arp_node/arp_velocity_controller/cmd_vel" />
+  </node>
 
 </launch>

@@ -66,6 +66,9 @@ Controller::Controller()
 {
 }
 
+/*
+ * Inicializa as variaveis de conexão para o controlador
+*/
 void Controller::controlerInit(const char* port, int baud, std::string name)
 {
   port_ = port;
@@ -73,8 +76,15 @@ void Controller::controlerInit(const char* port, int baud, std::string name)
   name_ = name;
 }
 
+/*
+ * Adiciona um novo canal no controlador
+*/
 void Controller::addChannel(Channel* channel) { channels_.push_back(channel); }
 
+/*
+ * Conecta com a porta serial, fazendo cinco tentativas, caso obtenha sucesso sinaliza e sai do loop,
+ * caso contrario retorna erro
+*/
 void Controller::connect()
 {
   if (!serial_)
@@ -112,6 +122,14 @@ void Controller::connect()
   ROS_INFO("Motor controller not responding.");
 }
 
+/*
+ * Rotina de leitura da serial
+ * subdividida em tres parte, a primeira responsavel por sinalizar para o ROS
+ * quando o controlador recebeu os dados através de um ack,
+ * a segunda responsavel por tratar os dados gerados pelo script
+ * a terceira verifica a integridade do script, caso nao sinalize integridade
+ * faz download do script contido no diretorio mbs
+*/
 void Controller::read()
 {
   ROS_DEBUG_STREAM_NAMED("serial", "Bytes waiting: " << serial_->available());
@@ -177,6 +195,9 @@ void Controller::read()
   }
 }
 
+/*
+ * escreve os dados na seria
+*/
 void Controller::write(std::string msg) { tx_buffer_ << msg << eol; }
 
 void Controller::flush()
@@ -193,6 +214,10 @@ void Controller::flush()
   tx_buffer_.str("");
 }
 
+/*
+ * verifica a integridade das mesnsagens de status e interpreta os valores recebidos
+ * linkando com as variaveis pertinentes no precesso
+*/
 void Controller::processStatus(std::string str)
 {
   std::vector<std::string> fields;
@@ -237,6 +262,11 @@ void Controller::processStatus(std::string str)
   }
 }
 
+/*
+ * verifica a integridade das mesnagen de feedback e verifica de qual motor foram recebidas
+ * caso integras a mensagem é enviada para o channel corespondente ao motor para tratamento
+ * das informações recebidas
+*/
 void Controller::processFeedback(std::string msg)
 {
   std::vector<std::string> fields;
@@ -267,6 +297,10 @@ void Controller::processFeedback(std::string msg)
   }
 }
 
+/*
+ * caso a versão do escript não esteja de acordo com a versão do software
+ * é inicializado o download.
+*/
 bool Controller::downloadScript()
 {
   ROS_DEBUG("Commanding driver to stop executing script.");
