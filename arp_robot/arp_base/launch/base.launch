@@ -18,6 +18,6 @@
     </node>
 
     <!-- Differential controller parameters and basic localization-->
-    <include file="$(find arp_control)/launch/control2.launch" />
+    <include file="$(find arp_control)/launch/control.launch" />
 
 </launch>
