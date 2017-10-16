@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace roboteq {
 
-Channel::Channel(int channel_num, std::string nh, Controller* controller,int polling_timeout) :
+Channel::Channel(int channel_num, std::string nh, Controller* controller,double polling_timeout) :
   channel_num_(channel_num), nh_(nh), name_(nh), controller_(controller), max_rpm_(3500),
   last_mode_(255),polling_timeout_(polling_timeout)
 {
