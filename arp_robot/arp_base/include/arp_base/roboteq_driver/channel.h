@@ -48,7 +48,7 @@ public:
     int channel_status;
   };
 
-  Channel(int channel_num, std::string nh, Controller* controller, int polling_timeout);
+  Channel(int channel_num, std::string nh, Controller* controller, double polling_timeout);
   void feedbackCallback(std::vector<std::string>);
   FeedBack getFeedBack(){return msg_;}
   std::string getName(){ return name_;}
