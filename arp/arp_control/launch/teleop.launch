@@ -12,7 +12,7 @@
     <param name="autorepeat_rate" value="25" />
   </node>
   <node pkg="teleop_twist_joy" name="teleop_twist_joy" type="teleop_node">
-    <rosparam command="load" ns="joy_conf/" file="$(find arp_control)/config/$(arg joy_config).yaml" />
+    <rosparam command="load" file="$(find arp_control)/config/$(arg joy_config).yaml" />
     <remap from="cmd_vel" to="arp_node/arp_velocity_controller/cmd_vel" />
   </node>
 
