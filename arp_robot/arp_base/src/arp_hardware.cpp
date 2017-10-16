@@ -21,7 +21,7 @@ namespace arp_base
 ArpHardware::ArpHardware(ros::NodeHandle nh, ros::NodeHandle private_nh)
     : nh_(nh), private_nh_(private_nh)
 {
-  private_nh_.param<double>("polling_timeout_", polling_timeout_, 0.15);
+  private_nh_.param<double>("polling_timeout_", polling_timeout_, 0.5);
 
   std::string port[NUM_CONTROLLERS];
   int32_t baund[NUM_CONTROLLERS];

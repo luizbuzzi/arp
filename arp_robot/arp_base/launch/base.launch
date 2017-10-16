@@ -8,7 +8,7 @@
       <rosparam subst_value="true">
           control_frequency: 10.0
           diagnostic_frequency: 1.0
-          polling_timeout: 0.15
+          polling_timeout: 0.25 <!-- whatch dog -->
           port_0: /dev/ttyACM0
           baund_0: 115200
           port_1: /dev/ttyACM1
