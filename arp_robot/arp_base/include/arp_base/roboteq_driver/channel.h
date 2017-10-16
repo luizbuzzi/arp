@@ -113,7 +113,7 @@ protected:
 
   FeedBack msg_;
 
-  int polling_timeout_;
+  double polling_timeout_;
 };
 
 enum ModePosition
